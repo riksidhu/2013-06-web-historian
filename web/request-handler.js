@@ -1,4 +1,4 @@
-exports.datadir = __dirname + "data/sites.txt"; // tests will need to override this.
+//exports.datadir = __dirname + "data/sites.txt"; // tests will need to override this.
 var fs = require("fs");
 var path = require("path");
 
@@ -14,6 +14,13 @@ var extend = function(target, source){
   }
   return target;
 };
+
+var mimeTypes = {
+  ".js": "text/javascript",
+  ".html": "text/html",
+  ".css": "text/css"
+};
+
 var header = function(type) {
   return extend({'content-type': type},defaultCorsHeaders);
 };
@@ -22,23 +29,46 @@ exports.handleRequest = function (req, res) {
   console.log(exports.datadir);
 
   if (req.method === "GET") {
+
+    if(req.url === '/favicon.ico'){
+      res.end();
+      return;
+    }
     var rootdirectory = "../client.html";
+    var lookup = path.basename(decodeURI(req.url));
+
+    if (lookup === ''){
+      lookup = 'client.html';
+    }
+
     fs.readFile(rootdirectory, function(err, data){
       if(err){
         console.log(err);
         res.writeHead(500);
         res.end("Server 500 Error");
       } else{
-        console.log(header("text/html"));
-        res.writeHead(200, {'content-type': 'text/html'});
+        res.writeHead(200, {'content-type': mimeTypes[path.extname(lookup)]});
+        console.log(path.extname(lookup));
+        console.log(mimeTypes[path.extname(lookup)]);
         res.end(data);
       }
 
     });
 
-
   } else if (req.method === "POST") {
-    // post
+    var postData = '';
+    var removeQuotes = new RegExp (/[^"|'](.+)[^"|']/g);
+    req.on('data', function(chunk){
+      postData += chunk;
+    });
+    req.on('end', function(){
+      fs.appendFile('../data/sites.txt', "\n"+ removeQuotes.exec(postData)[0], function(err){
+        if(err){
+          throw err;
+        }
+        console.log("file saved!");
+      });
+    });
   } else {
     // options
     res.writeHead(200, header);
