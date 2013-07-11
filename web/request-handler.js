@@ -1,4 +1,4 @@
-//exports.datadir = __dirname + "data/sites.txt"; // tests will need to override this.
+exports.datadir = __dirname + "data/sites.txt"; // tests will need to override this.
 var fs = require("fs");
 var path = require("path");
 
