@@ -25,7 +25,7 @@ describe("Node Server Request Listener Function", function() {
     });
   });
 
-  xit("Should answer GET requests for archived websites", function() {
+  it("Should answer GET requests for archived websites", function() {
     var fixtureName = "www.google.com";
     var req = new stubs.Request("/" + fixtureName, "GET");
     handler.handleRequest(req, res);

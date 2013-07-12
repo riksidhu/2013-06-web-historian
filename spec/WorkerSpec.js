@@ -16,7 +16,6 @@ describe("html fetcher helpers", function(){
 
     runs(function(){
       htmlFetcherHelpers.readUrls(filePath, function(urls){
-        console.log("URLS", urls);
         resultArray = urls;
       });
       //console.log(resultArray);
@@ -27,10 +26,12 @@ describe("html fetcher helpers", function(){
     runs(function() {
       expect(resultArray).toEqual(urlArray);
     });
+    // console.log('TEST RESULT ARRAY', htmlFetcherHelpers.downloadUrls(resultArray));
   });
 
-  xit("should have a 'downloadUrls' function", function(){
-    var result = htmlFetcherHelpers.downloadUrls();
+  it("should have a 'downloadUrls' function", function(){
+    var result = htmlFetcherHelpers.downloadUrls(['www.google.com', 'www.yahoo.com']);
+     // console.log('directory name',__dirname);
     expect(result).toBeTruthy();
   });
 });

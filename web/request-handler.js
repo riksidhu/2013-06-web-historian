@@ -34,27 +34,36 @@ exports.handleRequest = function (req, res) {
       res.end();
       return;
     }
+
     var rootdirectory = "../client.html";
     var lookup = path.basename(decodeURI(req.url));
+    console.log("Lookup", lookup);
+    var URIresource = "/Users/hackreactor/code/riksidhu/2013-06-web-historian/data/sites/" + lookup;
+    console.log("Resource", URIresource);
 
-    if (lookup === ''){
-      lookup = 'client.html';
-    }
-
-    fs.readFile(rootdirectory, function(err, data){
-      if(err){
-        console.log(err);
-        res.writeHead(500);
-        res.end("Server 500 Error");
-      } else{
-        res.writeHead(200, {'content-type': mimeTypes[path.extname(lookup)]});
-        console.log(path.extname(lookup));
-        console.log(mimeTypes[path.extname(lookup)]);
-        res.end(data);
+    fs.exists(URIresource, function(exists){
+      if (exists){
+        fs.readFile(URIresource, function(err, data){
+          if (err){
+            // This is an error or the the sites directory
+            fs.readFile(rootdirectory, function(err,data){
+              if(err){
+                throw err;
+              }
+            res.writeHead(200, {'content-type': "text/html"});
+            res.end(data);
+            });
+          } else{
+            res.writeHead(200, {'content-type': mimeTypes[path.extname(lookup)]});
+            res.end(data);
+          }
+        });
+      } else {
+        res.writeHead(404);
+        res.end("File Not Found");
+        // return;
       }
-
     });
-
   } else if (req.method === "POST") {
     var postData = '';
     var removeQuotes = new RegExp (/[^"|'](.+)[^"|']/g);
@@ -67,6 +76,8 @@ exports.handleRequest = function (req, res) {
           throw err;
         }
         console.log("file saved!");
+        res.writeHead(200, header);
+        res.end();
       });
     });
   } else {
